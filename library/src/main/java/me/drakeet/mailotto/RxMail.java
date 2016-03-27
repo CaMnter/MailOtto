@@ -12,19 +12,22 @@ import rx.subjects.Subject;
  * Date: 16/3/27 21:31
  */
 public class RxMail {
+
     private Set<Mail> mMails = new HashSet<>();
     private Set<Class<?>> mHandlers = new HashSet<>();
 
-    private static RxMail sMail;
+    private volatile static RxMail instance = null;
 
     private final Subject<Object, Object> _bus = new SerializedSubject<>(PublishSubject.create());
 
 
-    public static synchronized RxMail getInstance() {
-        if (sMail == null) {
-            sMail = new RxMail();
+    public static RxMail getInstance() {
+        if (instance == null) {
+            synchronized (RxMail.class) {
+                if (instance == null) instance = new RxMail();
+            }
         }
-        return sMail;
+        return instance;
     }
 
 
