@@ -43,6 +43,7 @@ When received a mail
 --------
 
 ```java
+// Must be set before checkMails
 RxMail.getInstance().toObserverable().subscribe(new Action1<Object>() {
     @Override public void call(Object event) {
 
