@@ -25,8 +25,8 @@ public class Mail {
 }
 ```
 
-Send mail
---------
+Send a mail
+-----------
 
 ```java
 RxMail.getInstance().send(mail);
