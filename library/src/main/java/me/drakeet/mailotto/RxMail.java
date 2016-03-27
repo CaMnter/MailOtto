@@ -16,9 +16,9 @@ public class RxMail {
     private Set<Mail> mMails = new HashSet<>();
     private Set<Class<?>> mHandlers = new HashSet<>();
 
-    private volatile static RxMail instance = null;
+    private final Subject<Object, Object> _postman = new SerializedSubject<>(PublishSubject.create());
 
-    private final Subject<Object, Object> _bus = new SerializedSubject<>(PublishSubject.create());
+    private volatile static RxMail instance = null;
 
 
     public static RxMail getInstance() {
@@ -37,7 +37,7 @@ public class RxMail {
 
 
     public Observable<Object> toObserverable() {
-        return _bus;
+        return _postman;
     }
 
 
@@ -59,8 +59,8 @@ public class RxMail {
 
 
     private void sendMail(Mail mail) {
-        if (_bus.hasObservers()) {
-            _bus.onNext(mail);
+        if (_postman.hasObservers()) {
+            _postman.onNext(mail);
             if (mMails.contains(mail)) {
                 mMails.remove(mail);
             }
