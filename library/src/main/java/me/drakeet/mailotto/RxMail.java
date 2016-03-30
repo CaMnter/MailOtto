@@ -63,7 +63,7 @@ public class RxMail {
      * Send mails.
      *
      * @param mails mails
-     * @return if all of the mails are sent to its observer, return true, otherwise return false.
+     * @return if all of the mails are sent to their observers, return true, otherwise return false.
      */
     public boolean send(Mail... mails) {
         boolean result = true;

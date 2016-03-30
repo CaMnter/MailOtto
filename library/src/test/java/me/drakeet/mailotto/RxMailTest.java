@@ -29,7 +29,7 @@ public class RxMailTest extends TestCase {
 
 
     /**
-     * The send method will send the mail to their observers immediately if there is a observer,
+     * The send method will send the mail to its observer immediately if there is a observer,
      * so it will return false when you check mails after sending.
      */
     @Test public void testCheckMails() {
