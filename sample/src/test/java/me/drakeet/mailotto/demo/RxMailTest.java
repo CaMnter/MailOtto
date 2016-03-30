@@ -7,9 +7,7 @@ import org.junit.Test;
 import rx.Subscription;
 import rx.functions.Action1;
 
-/**
- * To work on unit tests, switch the Test Artifact in the Build Variants view.
- */
+
 public class RxMailTest extends TestCase {
 
     private static final String CONTENT = "Send immediately.";

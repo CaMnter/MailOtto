@@ -12,12 +12,12 @@ public class Mail {
     public Object content;
 
 
-    public Mail(Class<?> to, Object content) {
-        this(null, to, content);
+    public Mail(Object content, Class<?> to) {
+        this(content, to, null);
     }
 
 
-    public Mail(Class<?> from, Class<?> to, Object content) {
+    public Mail(Object content, Class<?> to, Class<?> from) {
         this.to = to;
         this.from = from;
         this.content = content;
@@ -25,11 +25,12 @@ public class Mail {
 }
 ```
 
-Send a mail
------------
+Send mails
+----------
 
 ```java
 RxMail.getInstance().send(mail);
+RxMail.getInstance().send(mail1, mail2, ...);
 ```
 
 Check mails
