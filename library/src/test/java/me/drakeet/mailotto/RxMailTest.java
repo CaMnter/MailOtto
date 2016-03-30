@@ -1,8 +1,6 @@
-package me.drakeet.mailotto.demo;
+package me.drakeet.mailotto;
 
 import junit.framework.TestCase;
-import me.drakeet.mailotto.Mail;
-import me.drakeet.mailotto.RxMail;
 import org.junit.Test;
 import rx.Subscription;
 import rx.functions.Action1;
