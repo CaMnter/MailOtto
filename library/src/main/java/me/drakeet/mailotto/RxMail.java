@@ -16,7 +16,8 @@ public class RxMail {
     private Set<Mail> mMails = new HashSet<>();
     private Set<Class<?>> mHandlers = new HashSet<>();
 
-    private final Subject<Object, Object> _postman = new SerializedSubject<>(PublishSubject.create());
+    private final Subject<Object, Object> _postman = new SerializedSubject<>(
+            PublishSubject.create());
 
     private volatile static RxMail instance = null;
 
@@ -31,13 +32,13 @@ public class RxMail {
     }
 
 
-    public void checkMails(Object o) {
-        checkMails(o.getClass());
+    public Observable<Object> toObserverable() {
+        return _postman;
     }
 
 
-    public Observable<Object> toObserverable() {
-        return _postman;
+    public boolean checkMails(Object o) {
+        return checkMails(o.getClass());
     }
 
 
@@ -58,21 +59,33 @@ public class RxMail {
     }
 
 
-    private void sendMail(Mail mail) {
+    /**
+     * Send mails.
+     *
+     * @param mails mails
+     * @return if all of the mails be send to its observer, return true, otherwise return false.
+     */
+    public boolean send(Mail... mails) {
+        boolean result = true;
+        for (Mail mail : mails) {
+            result &= sendMail(mail);
+        }
+        return result;
+    }
+
+
+    private boolean sendMail(Mail mail) {
         if (_postman.hasObservers()) {
             _postman.onNext(mail);
             if (mMails.contains(mail)) {
                 mMails.remove(mail);
             }
+            return true;
         } else if (!mMails.contains(mail)) {
             mMails.add(mail);
         } else {
             // pass
         }
-    }
-
-
-    public void send(Mail mail) {
-        sendMail(mail);
+        return false;
     }
 }

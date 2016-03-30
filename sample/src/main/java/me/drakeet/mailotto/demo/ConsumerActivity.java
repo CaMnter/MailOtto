@@ -32,7 +32,7 @@ public class ConsumerActivity extends AppCompatActivity {
 
     public void onSend(View view) {
         RxMail.getInstance()
-              .send(new Mail(this.getClass(), this.getClass(), "A mail send to self"));
+              .send(new Mail("A mail send to self", this.getClass(), this.getClass()));
     }
 
 
