@@ -5,40 +5,33 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 import me.drakeet.mailotto.Mail;
-import me.drakeet.mailotto.RxMail;
-import rx.Subscription;
-import rx.functions.Action1;
+import me.drakeet.mailotto.Mailbox;
+import me.drakeet.mailotto.OnMailReceived;
 
 public class ConsumerActivity extends AppCompatActivity {
-
-    Subscription mSubscription;
-
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_consumer);
-        mSubscription = RxMail.getInstance().toObserverable().subscribe(new Action1<Object>() {
-            @Override public void call(Object event) {
-
-                if (event instanceof Mail) {
-                    Toast.makeText(ConsumerActivity.this, ((Mail) event).content.toString(),
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        RxMail.getInstance().checkMails(this);
+        Mailbox.getInstance().atHome(this);
     }
 
 
     public void onSend(View view) {
-        RxMail.getInstance()
-              .send(new Mail("A mail send to self", this.getClass(), this.getClass()));
+        // A mail send to self.
+        Mailbox.getInstance()
+               .post(new Mail("A mail send to self", this.getClass(), this.getClass()));
+    }
+
+
+    @OnMailReceived public void onDearMailReceived(Mail mail) {
+        Toast.makeText(ConsumerActivity.this, mail.content.toString(), Toast.LENGTH_SHORT).show();
     }
 
 
     @Override protected void onDestroy() {
         super.onDestroy();
-        mSubscription.unsubscribe();
+        Mailbox.getInstance().leave(this);
     }
 }
 

@@ -1,4 +1,4 @@
-# MailOtto v0.1
+# MailOtto v1.0
 A mail box.
 
 Mail
@@ -25,33 +25,56 @@ public class Mail {
 }
 ```
 
-Send mails
-----------
+Post mails
+---------
 
 ```java
-RxMail.getInstance().send(mail);
-RxMail.getInstance().send(mail1, mail2, ...);
+Mailbox.getInstance().post(mail);
 ```
 
-Check mails
---------
+AtHome, and the postman will give you the mails.
+------------------------------------------------
 
 ```java
-RxMail.getInstance().checkMails(this);
+Mailbox.getInstance().atHome(this);
 ```
 
 When received a mail
 --------
 
 ```java
-// Must be set before checkMails
-RxMail.getInstance().toObserverable().subscribe(new Action1<Object>() {
-    @Override public void call(Object event) {
-
-        if (event instanceof Mail) {
-            Toast.makeText(this, ((Mail) event).content.toString(),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-});
+@OnMailReceived public void onDearMailReceived(Mail mail) {
+    Toast.makeText(ConsumerActivity.this, 
+                   mail.content.toString(), 
+                   Toast.LENGTH_SHORT).show();
+}
 ```
+
+**Thanks to:**
+
+[square/otto](https://github.com/square/otto)
+
+License
+-------
+
+    Copyright 2016 drakeet.
+    Copyright 2012 Square, Inc.
+    Copyright 2010 Google, Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+
+ [1]: http://square.github.com/otto/
+ [2]: http://github.com/square/otto/downloads
+ [snap]: https://oss.sonatype.org/content/repositories/snapshots/

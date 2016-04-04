@@ -21,5 +21,4 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'io.reactivex:rxjava:1.0.16'
 }
