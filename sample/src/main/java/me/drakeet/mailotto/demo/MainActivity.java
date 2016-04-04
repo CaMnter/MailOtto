@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void onSend(View view) {
-        Mailbox.getInstance().send(new Mail("A mail from MainActivity", ConsumerActivity.class));
+        Mailbox.getInstance().post(new Mail("A mail from MainActivity", ConsumerActivity.class));
     }
 
 
