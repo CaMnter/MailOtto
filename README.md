@@ -1,6 +1,12 @@
 # MailOtto v1.0
 A mail box.
 
+### Usage
+
+```groovy
+compile 'me.drakeet.mailotto:mailotto:1.0'
+```
+
 Mail
 ----
 
