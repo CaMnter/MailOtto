@@ -2,7 +2,6 @@ package me.drakeet.mailotto;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -21,7 +20,8 @@ public class Mailbox {
     /**
      * All registered mail handlers, indexed by mail type.
      */
-    private final ConcurrentMap<Class<?>, MailHandler> handlerByType = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Class<?>, MailHandler> currentAtHomeHandlerByClass
+            = new ConcurrentHashMap<>();
 
     private volatile static Mailbox instance = null;
 
@@ -29,9 +29,9 @@ public class Mailbox {
     private final ThreadEnforcer enforcer;
     private final HandlerFinder handlerFinder;
 
-    private final ThreadLocal<LinkedList<MailWithHandler>> mailsToDispatch
-            = new ThreadLocal<LinkedList<MailWithHandler>>() {
-        @Override protected LinkedList<MailWithHandler> initialValue() {
+    private final ThreadLocal<LinkedList<Mail>> mailsToDispatch
+            = new ThreadLocal<LinkedList<Mail>>() {
+        @Override protected LinkedList<Mail> initialValue() {
             return new LinkedList<>();
         }
     };
@@ -89,16 +89,11 @@ public class Mailbox {
         }
         enforcer.enforce(this);
 
-        Map<Class<?>, MailHandler> foundHandlerMap = handlerFinder.findAllSubscribers(object);
-        for (Class<?> type : foundHandlerMap.keySet()) {
-
-            // 拿到缓存 MailHandler 集合
-            MailHandler handler = handlerByType.get(type);
-            if (handler == null) {
-                // TODO: 16/4/3
-            }
+        MailHandler onMailReceived = handlerFinder.findOnMailReceived(object);
+        if (onMailReceived != null) {
+            currentAtHomeHandlerByClass.put(object.getClass(), onMailReceived);
         }
-        dispatchMails(object);
+        dispatchMails(object, onMailReceived);
     }
 
 
@@ -108,26 +103,23 @@ public class Mailbox {
         }
         enforcer.enforce(this);
 
-        Map<Class<?>, MailHandler> handlersInListener = handlerFinder.findAllSubscribers(object);
-        for (Map.Entry<Class<?>, MailHandler> entry : handlersInListener.entrySet()) {
-            MailHandler currentHandler = getHandlerForMailType(entry.getKey());
-            MailHandler eventMethodsInListener = entry.getValue();
+        MailHandler foundHandler = handlerFinder.findOnMailReceived(object);
+        MailHandler cacheHandler = getCacheCurrentAtHomeHandler(object.getClass());
+        if (cacheHandler == null || !cacheHandler.equals(foundHandler)) {
+            throw new IllegalArgumentException(
+                    "Missing mail handler for an annotated method. Is " + object.getClass() +
+                            " atHome?");
+        }
 
-            if (currentHandler == null || !currentHandler.equals(eventMethodsInListener)) {
-                throw new IllegalArgumentException(
-                        "Missing event handler for an annotated method. Is " + object.getClass() +
-                                " registered?");
-            }
-
-            if (eventMethodsInListener.equals(currentHandler)) {
-                currentHandler.invalidate();
-            }
+        if (foundHandler.equals(cacheHandler)) {
+            cacheHandler.invalidate();
+            currentAtHomeHandlerByClass.remove(object.getClass());
         }
     }
 
 
-    MailHandler getHandlerForMailType(Class<?> type) {
-        return handlerByType.get(type);
+    MailHandler getCacheCurrentAtHomeHandler(Class<?> type) {
+        return currentAtHomeHandlerByClass.get(type);
     }
 
 
@@ -136,31 +128,46 @@ public class Mailbox {
             throw new NullPointerException("Mail to post must not be null.");
         }
         enforcer.enforce(this);
-        Class<?> mailType = mail.getClass();
+        Class<?> toClass = mail.to;
 
-        MailHandler handler = getHandlerForMailType(mailType);
+        MailHandler handler = getCacheCurrentAtHomeHandler(toClass);
         if (handler != null) {
             dispatch(mail, handler);
-            mailsToDispatch.get().remove(new MailWithHandler(mail, handler));
         } else {
-            // TODO: 16/4/3 should check null when poll
-            enqueueMail(mail, handler);
+            enqueue(mail);
         }
     }
 
 
-    protected void dispatch(Object event, MailHandler wrapper) {
+    protected void enqueue(Mail mail) {
+        mailsToDispatch.get().add(mail);
+    }
+
+
+    private void dispatchMails(Object to, MailHandler onMailReceived) {
+        if (isDispatching.get()) {
+            return;
+        }
+        isDispatching.set(true);
+        for (Mail mail : mailsToDispatch.get()) {
+            if (mail.to == to.getClass()) {
+                if (onMailReceived.isValid()) {
+                    dispatch(mail, onMailReceived);
+                }
+                mailsToDispatch.get().remove(mail);
+            }
+        }
+        isDispatching.set(false);
+    }
+
+
+    protected void dispatch(Mail mail, MailHandler wrapper) {
         try {
-            wrapper.handleEvent(event);
+            wrapper.handleEvent(mail);
         } catch (InvocationTargetException e) {
             throwRuntimeException(
-                    "Could not dispatch mail: " + event.getClass() + " to handler " + wrapper, e);
+                    "Could not dispatch mail: " + mail.getClass() + " to handler " + wrapper, e);
         }
-    }
-
-
-    protected void enqueueMail(Mail mail, MailHandler handler) {
-        mailsToDispatch.get().add(new MailWithHandler(mail, handler));
     }
 
 
@@ -172,26 +179,6 @@ public class Mailbox {
             throw new RuntimeException(msg + ": " + e.getMessage(), e);
         }
     }
-
-
-    private void dispatchMails(Object to) {
-
-        if (isDispatching.get()) {
-            return;
-        }
-
-        isDispatching.set(true);
-        for (MailWithHandler mh : mailsToDispatch.get()) {
-            if (mh.mail.to == to.getClass()) {
-                if (mh.handler.isValid()) {
-                    dispatch(mh.mail, mh.handler);
-                }
-                mailsToDispatch.get().remove(mh);
-            }
-        }
-        isDispatching.set(false);
-    }
-
 
 
     @Override public String toString() {

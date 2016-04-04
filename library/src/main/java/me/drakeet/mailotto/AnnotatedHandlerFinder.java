@@ -20,8 +20,6 @@ package me.drakeet.mailotto;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -35,14 +33,23 @@ import java.util.concurrent.ConcurrentMap;
  */
 final class AnnotatedHandlerFinder {
 
+    /**
+     * Cache event bus subscriber methods for each class.
+     */
+    private static final ConcurrentMap<Class<?>, Method> SUBSCRIBER_CACHE
+            = new ConcurrentHashMap<>();
 
+
+    private AnnotatedHandlerFinder() {
+        // No instances.
+    }
 
 
     /**
      * get a method annotated with {@link OnMailReceived} into their respective
      * caches for the specified class.
      */
-    private static Map<Class<?>, Method> loadAnnotatedMethod(Class<?> listenerClass) {
+    private static Method loadAnnotatedMethod(Class<?> listenerClass) {
         for (Method method : listenerClass.getDeclaredMethods()) {
             // The compiler sometimes creates synthetic bridge methods as part of the
             // type erasure process. As of JDK8 these methods now include the same
@@ -51,7 +58,6 @@ final class AnnotatedHandlerFinder {
             if (method.isBridge()) {
                 continue;
             }
-
             if (method.isAnnotationPresent(OnMailReceived.class)) {
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 if (parameterTypes.length != 1) {
@@ -73,10 +79,7 @@ final class AnnotatedHandlerFinder {
                             "Method " + method + " has @OnMailReceived annotation on " + mailType +
                                     " but is not 'public'.");
                 }
-                Map<Class<?>, Method> subscriberMethod = new HashMap<>();
-                subscriberMethod.put(mailType, method);
-                SUBSCRIBER_CACHE.put(listenerClass, subscriberMethod);
-                return subscriberMethod;
+                return method;
             }
         }
         return null;
@@ -84,40 +87,23 @@ final class AnnotatedHandlerFinder {
 
 
     /**
-     * Cache event bus subscriber methods for each class.
-     */
-    private static final ConcurrentMap<Class<?>, Map<Class<?>, Method>> SUBSCRIBER_CACHE
-            = new ConcurrentHashMap<Class<?>, Map<Class<?>, Method>>();
-
-    /**
      * This implementation finds all methods marked with a {@link OnMailReceived} annotation.
      */
-    static Map<Class<?>, MailHandler> findAllSubscribers(Object listener) {
-
+    static MailHandler findOnMailReceived(Object listener) {
         Class<?> listenerClass = listener.getClass();
-        Map<Class<?>, MailHandler> handlersInMethod = new HashMap<>();
         // todo: 一个 Mail 只能有一个方法！
-        Map<Class<?>, Method> methodMap = SUBSCRIBER_CACHE.get(listenerClass);
+        Method method = SUBSCRIBER_CACHE.get(listenerClass);
 
-        if (methodMap == null) {
-            methodMap = loadAnnotatedMethod(listenerClass);
-            if (methodMap == null) {
-                throw new IllegalStateException("You must set a @OnMailReceived method for handle mail.");
+        if (method == null) {
+            method = loadAnnotatedMethod(listenerClass);
+            if (method == null) {
+                throw new IllegalStateException(
+                        "You must set a @OnMailReceived method for handle mail.");
+            } else {
+                SUBSCRIBER_CACHE.put(listenerClass, method);
             }
         }
-
-        if (!methodMap.isEmpty()) {
-            for (Map.Entry<Class<?>, Method> e : methodMap.entrySet()) {
-                Method m = e.getValue();
-                handlersInMethod.put(e.getKey(), new MailHandler(listener, m));
-            }
-        }
-
-        return handlersInMethod;
-    }
-
-
-    private AnnotatedHandlerFinder() {
-        // No instances.
+        // method != null
+        return new MailHandler(listener, method);
     }
 }

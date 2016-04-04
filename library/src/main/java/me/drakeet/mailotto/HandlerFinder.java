@@ -17,19 +17,19 @@
 
 package me.drakeet.mailotto;
 
-import java.util.Map;
-
 /**
  * Finds producer and subscriber methods.
+ *
+ * @author drakeet
  */
 interface HandlerFinder {
 
-    Map<Class<?>, MailHandler> findAllSubscribers(Object listener);
+    MailHandler findOnMailReceived(Object listener);
 
     HandlerFinder ANNOTATED = new HandlerFinder() {
 
-        @Override public Map<Class<?>, MailHandler> findAllSubscribers(Object listener) {
-            return AnnotatedHandlerFinder.findAllSubscribers(listener);
+        @Override public MailHandler findOnMailReceived(Object listener) {
+            return AnnotatedHandlerFinder.findOnMailReceived(listener);
         }
     };
 }
