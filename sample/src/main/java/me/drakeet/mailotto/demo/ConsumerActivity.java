@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 import me.drakeet.mailotto.Mail;
-import me.drakeet.mailotto.RxMail;
+import me.drakeet.mailotto.Mailbox;
 import rx.Subscription;
 import rx.functions.Action1;
 
@@ -17,7 +17,7 @@ public class ConsumerActivity extends AppCompatActivity {
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_consumer);
-        mSubscription = RxMail.getInstance().toObserverable().subscribe(new Action1<Object>() {
+        mSubscription = Mailbox.getInstance().toObserverable().subscribe(new Action1<Object>() {
             @Override public void call(Object event) {
 
                 if (event instanceof Mail) {
@@ -26,13 +26,13 @@ public class ConsumerActivity extends AppCompatActivity {
                 }
             }
         });
-        RxMail.getInstance().checkMails(this);
+        Mailbox.getInstance().checkMails(this);
     }
 
 
     public void onSend(View view) {
-        RxMail.getInstance()
-              .send(new Mail("A mail send to self", this.getClass(), this.getClass()));
+        Mailbox.getInstance()
+               .send(new Mail("A mail send to self", this.getClass(), this.getClass()));
     }
 
 

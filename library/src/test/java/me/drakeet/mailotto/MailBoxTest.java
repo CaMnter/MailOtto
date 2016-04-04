@@ -5,8 +5,7 @@ import org.junit.Test;
 import rx.Subscription;
 import rx.functions.Action1;
 
-
-public class RxMailTest extends TestCase {
+public class MailboxTest extends TestCase {
 
     private static final String CONTENT = "Send immediately.";
     private Subscription mSubscription;
@@ -14,7 +13,7 @@ public class RxMailTest extends TestCase {
 
     @Override protected void setUp() throws Exception {
         super.setUp();
-        mSubscription = RxMail.getInstance().toObserverable().subscribe(new Action1<Object>() {
+        mSubscription = Mailbox.getInstance().toObserverable().subscribe(new Action1<Object>() {
             @Override public void call(Object o) {
                 System.out.println("on subscribe.");
                 assertNotNull(o);
@@ -22,10 +21,9 @@ public class RxMailTest extends TestCase {
                 assertEquals(CONTENT, ((Mail) o).content);
             }
         });
-        boolean result = RxMail.getInstance().send(new Mail(CONTENT, this.getClass()));
+        boolean result = Mailbox.getInstance().send(new Mail(CONTENT, this.getClass()));
         assertTrue(result);
     }
-
 
 
     /**
@@ -33,13 +31,20 @@ public class RxMailTest extends TestCase {
      * so it will return false when you check mails after sending.
      */
     @Test public void testCheckMails() {
-        assertFalse(RxMail.getInstance().checkMails(this));
+        assertFalse(Mailbox.getInstance().checkMails(this));
 
         mSubscription.unsubscribe();
-        boolean result = RxMail.getInstance().send(new Mail(CONTENT, this.getClass()));
+        boolean result = Mailbox.getInstance().send(new Mail(CONTENT, this.getClass()));
         assertFalse(result);
-        assertTrue(RxMail.getInstance().checkMails(this));
+        assertTrue(Mailbox.getInstance().checkMails(this));
         // again
-        assertTrue(RxMail.getInstance().checkMails(this));
+        assertTrue(Mailbox.getInstance().checkMails(this));
+    }
+
+
+    @OnMailReceived public void onMailReveived(Mail mail) {
+        if (mail.content instanceof String) {
+            System.out.println("haha");
+        }
     }
 }
