@@ -2,7 +2,7 @@
 A mail box.
 
 Mail
---------
+----
 
 ```java
 public class Mail {
@@ -26,7 +26,7 @@ public class Mail {
 ```
 
 Post mails
----------
+----------
 
 ```java
 Mailbox.getInstance().post(mail);
@@ -40,7 +40,7 @@ Mailbox.getInstance().atHome(this);
 ```
 
 When received a mail
---------
+--------------------
 
 ```java
 @OnMailReceived public void onDearMailReceived(Mail mail) {
@@ -50,7 +50,15 @@ When received a mail
 }
 ```
 
-**Thanks to:**
+Leave
+-----
+
+```java
+Mailbox.getInstance().leave(this);
+```
+
+Thanks
+------
 
 [square/otto](https://github.com/square/otto)
 
