@@ -31,6 +31,7 @@ public class ConsumerActivity extends AppCompatActivity {
 
     @Override protected void onDestroy() {
         super.onDestroy();
+        Mailbox.getInstance().leave(this);
     }
 }
 
