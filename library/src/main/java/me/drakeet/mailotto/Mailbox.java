@@ -17,6 +17,7 @@
 package me.drakeet.mailotto;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -164,12 +165,14 @@ public class Mailbox {
             return;
         }
         isDispatching.set(true);
-        for (Mail mail : mailsToDispatch.get()) {
-            if (mail.to == to.getClass()) {
+        Iterator<Mail> iterator = mailsToDispatch.get().iterator();
+        while (iterator.hasNext()) {
+            Mail _mail = iterator.next();
+            if (_mail.to == to.getClass()) {
                 if (onMailReceived.isValid()) {
-                    dispatch(mail, onMailReceived);
+                    dispatch(_mail, onMailReceived);
                 }
-                mailsToDispatch.get().remove(mail);
+                iterator.remove();
             }
         }
         isDispatching.set(false);
