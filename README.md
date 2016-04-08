@@ -3,12 +3,12 @@ A mail box.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/drakeet/MailOtto/blob/master/LICENSE)
 ![SDK](https://img.shields.io/badge/SDK-9%2B-orange.svg)
-![maven-central](https://img.shields.io/maven-central/v/me.drakeet.mailotto/apache-maven.svg) 
+![maven-central](https://img.shields.io/maven-central/v/me.drakeet.mailotto/mailotto.svg) 
 
 ### Usage
 
 ```groovy
-compile 'me.drakeet.mailotto:mailotto:1.0'
+compile 'me.drakeet.mailotto:mailotto:1.0.1'
 ```
 
 Mail
