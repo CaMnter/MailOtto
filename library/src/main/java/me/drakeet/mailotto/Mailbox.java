@@ -34,7 +34,7 @@ public class Mailbox {
     public static final String DEFAULT_IDENTIFIER = "default";
 
     /**
-     * All registered mail handlers, indexed by mail type.
+     * All registered mail handlers, indexed by mail.to.
      */
     private final ConcurrentMap<Class<?>, MailHandler> currentAtHomeHandlerByClass
             = new ConcurrentHashMap<>();
