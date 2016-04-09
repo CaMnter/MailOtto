@@ -53,7 +53,7 @@ public class Mailbox {
     };
 
     /**
-     * True if the current thread is currently dispatching an event.
+     * True if the current thread is currently dispatching an mail.
      */
     private final ThreadLocal<Boolean> isDispatching = new ThreadLocal<Boolean>() {
         @Override protected Boolean initialValue() {
@@ -181,7 +181,7 @@ public class Mailbox {
 
     protected void dispatch(Mail mail, MailHandler wrapper) {
         try {
-            wrapper.handleEvent(mail);
+            wrapper.handleMail(mail);
         } catch (InvocationTargetException e) {
             throwRuntimeException(
                     "Could not dispatch mail: " + mail.getClass() + " to handler " + wrapper, e);

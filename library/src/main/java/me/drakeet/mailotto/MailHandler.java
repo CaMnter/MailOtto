@@ -36,7 +36,7 @@ class MailHandler {
      */
     private final int hashCode;
     /**
-     * Should this handler receive events?
+     * Should this handler receive mail?
      */
     private boolean valid = true;
 
@@ -80,13 +80,13 @@ class MailHandler {
     /**
      * Invokes the wrapped handler method to handle {@code mail}.
      *
-     * @param mail event to handle
+     * @param mail mail to handle
      * @throws IllegalStateException if previously invalidated.
      * @throws InvocationTargetException if the wrapped method throws any {@link Throwable} that is
      * not
      * an {@link Error} ({@code Error}s are propagated as-is).
      */
-    public void handleEvent(Object mail) throws InvocationTargetException {
+    public void handleMail(Object mail) throws InvocationTargetException {
         if (!valid) {
             throw new IllegalStateException(
                     toString() + " has been invalidated and can no longer handle mails.");

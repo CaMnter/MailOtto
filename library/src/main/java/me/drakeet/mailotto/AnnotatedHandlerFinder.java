@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentMap;
 final class AnnotatedHandlerFinder {
 
     /**
-     * Cache event bus subscriber methods for each class.
+     * Cache mail subscriber methods for each class.
      */
     private static final ConcurrentMap<Class<?>, Method> SUBSCRIBER_CACHE
             = new ConcurrentHashMap<>();
