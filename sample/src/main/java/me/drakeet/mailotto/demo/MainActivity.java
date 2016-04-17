@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void onPreload(final View view) {
+        ((TextView)view).append(": loading...");
         mHandler.postDelayed(new InnerRunnable(view), 8 * 1000);
     }
 
