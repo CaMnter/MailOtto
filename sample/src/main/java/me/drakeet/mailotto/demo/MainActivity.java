@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.lang.ref.WeakReference;
 import me.drakeet.mailotto.Mail;
 import me.drakeet.mailotto.Mailbox;
 
@@ -22,13 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void onPreload(final View view) {
-        mHandler.postDelayed(new Runnable() {
-            @Override public void run() {
-                ((TextView) view).append(": done!");
-                Mailbox.getInstance()
-                       .post(new Mail("A mail from MainActivity", TargetActivity.class));
-            }
-        }, 8 * 1000);
+        mHandler.postDelayed(new InnerRunnable(view), 8 * 1000);
     }
 
 
@@ -41,6 +36,26 @@ public class MainActivity extends AppCompatActivity {
 
     @Override protected void onDestroy() {
         super.onDestroy();
+        mHandler.removeCallbacksAndMessages(this);
         mHandler = null;
+    }
+
+
+    public static class InnerRunnable implements Runnable {
+
+        WeakReference<TextView> textViewPreference;
+
+
+        public InnerRunnable(View textView) {
+            this.textViewPreference = new WeakReference<>((TextView) textView);
+        }
+
+
+        @Override public void run() {
+            if (textViewPreference.get() != null) {
+                textViewPreference.get().append(": done!");
+            }
+            Mailbox.getInstance().post(new Mail("A mail from MainActivity", TargetActivity.class));
+        }
     }
 }
