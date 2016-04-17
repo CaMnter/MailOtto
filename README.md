@@ -73,7 +73,7 @@ Sample
 
 There is an example of using MailOtto to do pre loading. It is very suitable for pre loading, nice lol.
 
-这是一个使用 MailOtto 做预加载的示例。它非常适合做预加载，很棒 lol.
+这是一个使用 MailOtto 做预加载的示例。它非常适合做预加载，很棒 lol. 相关文章：[使用 MailOtto 做完美预加载](https://drakeet.me/mailotto-sample)
 
 https://github.com/drakeet/MailOtto/tree/master/sample/src/main/java/me/drakeet/mailotto/demo
 
