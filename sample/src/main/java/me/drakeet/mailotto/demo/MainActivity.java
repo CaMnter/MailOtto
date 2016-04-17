@@ -34,13 +34,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Override protected void onDestroy() {
-        super.onDestroy();
-        mHandler.removeCallbacksAndMessages(this);
-        mHandler = null;
-    }
-
-
     public static class InnerRunnable implements Runnable {
 
         WeakReference<TextView> textViewPreference;
