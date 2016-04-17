@@ -67,6 +67,19 @@ Leave
 Mailbox.getInstance().leave(this);
 ```
 
+
+Sample
+------
+
+There is an example of using MailOtto to do pre loading.
+
+这是一个使用 MailOtto 做预加载的示例。
+
+https://github.com/drakeet/MailOtto/tree/master/sample
+
+https://github.com/drakeet/MailOtto/releases
+
+
 Thanks
 ------
 
