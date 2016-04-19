@@ -1,13 +1,16 @@
-package me.drakeet.mailotto.demo;
+package me.drakeet.mailotto.demo.preload;
 
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import me.drakeet.mailotto.Mail;
 import me.drakeet.mailotto.Mailbox;
 import me.drakeet.mailotto.OnMailReceived;
+import me.drakeet.mailotto.demo.R;
+import me.drakeet.mailotto.demo.lazyload.LazyActivity;
 
 public class TargetActivity extends AppCompatActivity {
 
@@ -29,6 +32,13 @@ public class TargetActivity extends AppCompatActivity {
 
     @OnMailReceived public void onPreloadDataReady(Mail mail) {
         mTextView.setText(mail.content.toString());
+        View gotoLazyLoad = findViewById(R.id.goto_lazy_load);
+        gotoLazyLoad.setVisibility(View.VISIBLE);
+        gotoLazyLoad.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                startActivity(LazyActivity.newIntent(TargetActivity.this));
+            }
+        });
     }
 
 

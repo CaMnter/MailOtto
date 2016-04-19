@@ -1,4 +1,4 @@
-package me.drakeet.mailotto.demo;
+package me.drakeet.mailotto.demo.preload;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
+import me.drakeet.mailotto.demo.R;
 
 public class NextActivity extends AppCompatActivity {
 

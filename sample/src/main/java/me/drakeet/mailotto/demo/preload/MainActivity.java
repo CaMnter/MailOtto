@@ -1,4 +1,4 @@
-package me.drakeet.mailotto.demo;
+package me.drakeet.mailotto.demo.preload;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +9,7 @@ import android.widget.Toast;
 import java.lang.ref.WeakReference;
 import me.drakeet.mailotto.Mail;
 import me.drakeet.mailotto.Mailbox;
+import me.drakeet.mailotto.demo.R;
 
 public class MainActivity extends AppCompatActivity {
 

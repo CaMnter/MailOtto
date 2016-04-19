@@ -7,7 +7,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="me.drakeet.mailotto.demo.TargetActivity">
+    tools:context=".preload.TargetActivity">
 
     <TextView
         android:id="@+id/text"
@@ -16,4 +16,13 @@
         android:layout_centerInParent="true"
         android:textSize="24dp"
         android:text="Waiting for the pre loaded data to arrive..."/>
+
+    <Button
+        style="@style/TestButtonStyle"
+        android:id="@+id/goto_lazy_load"
+        android:visibility="gone"
+        android:layout_below="@+id/text"
+        android:layout_marginTop="16dp"
+        android:layout_centerInParent="true"
+        android:text="GotoLazyLoad"/>
 </RelativeLayout>

@@ -9,15 +9,19 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".preload.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".NextActivity"/>
-        <activity android:name=".TargetActivity"/>
+        <activity android:name=".preload.NextActivity"/>
+        <activity android:name=".preload.TargetActivity"/>
+        <activity
+            android:name=".lazyload.LazyActivity"
+            android:label="@string/title_activity_lazy"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
