@@ -2,12 +2,14 @@ package me.drakeet.mailotto.demo;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import me.drakeet.mailotto.Mail;
 import me.drakeet.mailotto.Mailbox;
 import me.drakeet.mailotto.OnMailReceived;
+import me.drakeet.mailotto.demo.bean.ResponseData;
+import me.drakeet.mailotto.mail.PreloadMail;
 
 public class TargetActivity extends AppCompatActivity {
 
@@ -27,8 +29,13 @@ public class TargetActivity extends AppCompatActivity {
     }
 
 
-    @OnMailReceived public void onPreloadDataReady(Mail mail) {
-        mTextView.setText(mail.content.toString());
+    @SuppressWarnings("unchecked") @OnMailReceived public void onPreloadDataReady(Mail mail) {
+        if (mail instanceof PreloadMail) {
+            PreloadMail<ResponseData> preloadMail = (PreloadMail<ResponseData>) mail;
+            mTextView.setText(preloadMail.preData.data);
+        } else {
+            mTextView.setText(mail.content.toString());
+        }
     }
 
 

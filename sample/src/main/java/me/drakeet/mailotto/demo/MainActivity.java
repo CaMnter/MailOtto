@@ -1,55 +1,60 @@
 package me.drakeet.mailotto.demo;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
-import java.lang.ref.WeakReference;
-import me.drakeet.mailotto.Mail;
-import me.drakeet.mailotto.Mailbox;
+import com.camnter.easyrecyclerview.holder.EasyRecyclerViewHolder;
+import com.camnter.easyrecyclerview.widget.EasyRecyclerView;
+import com.camnter.easyrecyclerview.widget.decorator.EasyDividerItemDecoration;
+import java.util.ArrayList;
+import me.drakeet.mailotto.demo.adapter.MainAdapter;
 
+/**
+ * Description：MainActivity
+ * Created by：CaMnter
+ * Time：2016-04-19 14:01
+ */
 public class MainActivity extends AppCompatActivity {
-
-    private Handler mHandler;
+    private EasyRecyclerView mainRecyclerView;
+    private MainAdapter mainAdapter;
+    private ArrayList<Class> classes;
 
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mHandler = new Handler();
+        this.initViews();
+        this.initData();
+        this.initListeners();
     }
 
 
-    public void onPreload(final View view) {
-        ((TextView)view).append(": loading...");
-        mHandler.postDelayed(new InnerRunnable(view), 8 * 1000);
+    private void initViews() {
+        this.mainRecyclerView = (EasyRecyclerView) this.findViewById(R.id.main_recycler_view);
+        EasyDividerItemDecoration decoration = new EasyDividerItemDecoration(this,
+                EasyDividerItemDecoration.VERTICAL_LIST);
+        decoration.bottomDivider = true;
+        this.mainRecyclerView.addItemDecoration(decoration);
     }
 
 
-    public void onStartNextPage(View view) {
-        startActivity(NextActivity.getIntent(this, /*page = */2));
-        Toast.makeText(this, "MainActivity has been destroyed.", Toast.LENGTH_LONG).show();
-        this.finish();
+    private void initData() {
+        this.classes = new ArrayList<>();
+        this.classes.add(PreloadMailActivity.class);
+
+        this.mainAdapter = new MainAdapter();
+        this.mainAdapter.setList(this.classes);
+        this.mainRecyclerView.setAdapter(this.mainAdapter);
     }
 
 
-    public static class InnerRunnable implements Runnable {
-
-        WeakReference<TextView> textViewPreference;
-
-
-        public InnerRunnable(View textView) {
-            this.textViewPreference = new WeakReference<>((TextView) textView);
-        }
-
-
-        @Override public void run() {
-            if (textViewPreference.get() != null) {
-                textViewPreference.get().append(": done!");
+    private void initListeners() {
+        this.mainAdapter.setOnItemClickListener(new EasyRecyclerViewHolder.OnItemClickListener() {
+            @Override public void onItemClick(View view, int i) {
+                Class c = MainActivity.this.classes.get(i);
+                MainActivity.this.startActivity(new Intent(MainActivity.this, c));
             }
-            Mailbox.getInstance().post(new Mail("A mail from MainActivity", TargetActivity.class));
-        }
+        });
     }
 }

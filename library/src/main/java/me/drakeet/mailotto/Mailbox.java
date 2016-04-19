@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import me.drakeet.mailotto.mail.PreloadMail;
 
 /**
  * Created by drakeet(http://drakeet.me)
@@ -143,11 +144,16 @@ public class Mailbox {
         if (mail == null) {
             throw new NullPointerException("Mail to post must not be null.");
         }
+
         enforcer.enforce(this);
         Class<?> toClass = mail.to;
 
         MailHandler handler = getCacheCurrentAtHomeHandler(toClass);
         if (handler != null) {
+            if (mail instanceof PreloadMail) {
+                PreloadMail preloadMail = (PreloadMail) mail;
+                preloadMail.executing();
+            }
             dispatch(mail, handler);
         } else {
             enqueue(mail);
