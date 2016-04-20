@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,10 +21,10 @@ import me.drakeet.mailotto.demo.R;
 
 public class LazyActivity extends AppCompatActivity {
 
+    private ViewPager mViewPager;
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private PlaceholderFragment[] mFragments = { PlaceholderFragment.newInstance(0),
             PlaceholderFragment.newInstance(1), LazyLoadFragment.newInstance(-999) };
-    private ViewPager mViewPager;
 
 
     public static Intent newIntent(Context context) {
@@ -38,21 +37,9 @@ public class LazyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lazy);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
-        tabLayout.setOnTabSelectedListener(new OnTabSelectedAdapter() {
-
-            @Override public void onTabSelected(TabLayout.Tab tab) {
-                mViewPager.setCurrentItem(tab.getPosition(), false);
-            }
-        });
         mViewPager.setOffscreenPageLimit(3);
         mViewPager.addOnPageChangeListener(new OnPageChangeAdapter() {
             int lastPosition = 0;
@@ -65,14 +52,20 @@ public class LazyActivity extends AppCompatActivity {
             }
         });
 
-        Mailbox.getInstance().post(new Mail("Go", LazyLoadFragment.class));
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setOnTabSelectedListener(new OnTabSelectedAdapter() {
+
+            @Override public void onTabSelected(TabLayout.Tab tab) {
+                mViewPager.setCurrentItem(tab.getPosition(), false);
+            }
+        });
+
+        Mailbox.getInstance().post(new Mail("Go!", LazyLoadFragment.class));
     }
 
 
     public static class LazyLoadFragment extends PlaceholderFragment {
-
-        public static final String TAG = LazyLoadFragment.class.getSimpleName();
-
 
         public LazyLoadFragment() {
         }
@@ -156,8 +149,7 @@ public class LazyActivity extends AppCompatActivity {
 
 
         @Override public int getCount() {
-            // Show 3 total pages.
-            return 3;
+            return mFragments.length;
         }
 
 
@@ -168,7 +160,7 @@ public class LazyActivity extends AppCompatActivity {
                 case 1:
                     return "SECTION 2";
                 case 2:
-                    return "SECTION 3";
+                    return "LAZY SECTION";
             }
             return null;
         }
