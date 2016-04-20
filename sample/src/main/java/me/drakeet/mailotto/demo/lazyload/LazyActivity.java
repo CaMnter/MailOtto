@@ -3,8 +3,6 @@ package me.drakeet.mailotto.demo.lazyload;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,29 +11,20 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import me.drakeet.mailotto.Mail;
 import me.drakeet.mailotto.Mailbox;
+import me.drakeet.mailotto.OnMailReceived;
 import me.drakeet.mailotto.demo.R;
 
 public class LazyActivity extends AppCompatActivity {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
+    private PlaceholderFragment[] mFragments = { PlaceholderFragment.newInstance(0),
+            PlaceholderFragment.newInstance(1), LazyLoadFragment.newInstance(-999) };
     private ViewPager mViewPager;
 
 
@@ -51,40 +40,32 @@ public class LazyActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
         tabLayout.setOnTabSelectedListener(new OnTabSelectedAdapter() {
+
             @Override public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition(), false);
             }
         });
         mViewPager.setOffscreenPageLimit(3);
+        mViewPager.addOnPageChangeListener(new OnPageChangeAdapter() {
+            int lastPosition = 0;
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null)
-                        .show();
+
+            @Override public void onPageSelected(int newPosition) {
+                ((LifecycleCompat) mSectionsPagerAdapter.getItem(newPosition)).onResumeCompat();
+                ((LifecycleCompat) mSectionsPagerAdapter.getItem(lastPosition)).onPauseCompat();
+                lastPosition = newPosition;
             }
         });
 
         Mailbox.getInstance().post(new Mail("Go", LazyLoadFragment.class));
-    }
-
-
-    @Override public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_lazy, menu);
-        return true;
     }
 
 
@@ -95,27 +76,44 @@ public class LazyActivity extends AppCompatActivity {
 
         public LazyLoadFragment() {
         }
+
+
+        public static LazyLoadFragment newInstance(int sectionNumber) {
+            LazyLoadFragment fragment = new LazyLoadFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+
+        @Override public void onResumeCompat() {
+            super.onResumeCompat();
+            Mailbox.getInstance().atHome(this);
+        }
+
+
+        @Override public void onPause() {
+            super.onPause();
+            Mailbox.getInstance().leave(this);
+        }
+
+
+        @OnMailReceived public void onLazyLoad(Mail mail) {
+            Toast.makeText(getContext(), "Load your views and data now...", Toast.LENGTH_LONG)
+                 .show();
+        }
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+    public static class PlaceholderFragment extends Fragment implements LifecycleCompat {
+
+        protected static final String ARG_SECTION_NUMBER = "section_number";
 
 
         public PlaceholderFragment() {
         }
 
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
@@ -133,12 +131,18 @@ public class LazyActivity extends AppCompatActivity {
                     getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
         }
+
+
+        @Override public void onResumeCompat() {
+
+        }
+
+
+        @Override public void onPauseCompat() {
+
+        }
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -147,12 +151,7 @@ public class LazyActivity extends AppCompatActivity {
 
 
         @Override public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            if (position == 2) {
-                return LazyLoadFragment.newInstance(-1);
-            }
-            return PlaceholderFragment.newInstance(position + 1);
+            return mFragments[position];
         }
 
 
